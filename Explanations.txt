@@ -1,0 +1,50 @@
+Front End:
+# Login Page:
+Initially username and password is empty, then  enters the data,
+it posts the message to the backend. and after 1sec using timeout function, 
+it goes to the ChatPage.
+
+# Chat Page:
+It just shows the message: Initially
+
+# Register Page:
+Exactly similar to the login page, we are sending the username and password to the backend.
+
+#Home Page:
+Have buttons, that used to go to the Login and Register pages.
+The functions are predefined in the App.js itself, where to go to the page.
+
+#App.js:
+Here initially the home page opens. So useState("home").
+By clicking the buttons useState changes, if register: useState make setPage = "register"
+like that changing to other pages.
+
+BackEnd:
+#authController.js:
+Receiving username and password.And check for already the same user name exists.
+If new user stores the username and bcrypt password.
+await newUser.save();-> Saves in mongodb.
+User is used here
+
+In login part we are comparing and correct sending Login successful message.
+
+#authRoutes:
+The post request is received here as here is the router is used.
+Like http://localhost:3000/auth/api/(adds register or login):
+if register: http://localhost:3000/api/auth/register->calls the function in the authController.js
+And using User.js in module convert into json for mongodb and is stored in the database.
+
+# Server.js:
+In server.js, it used dotenv.config() for using env link to send to the mongodb.
+It uses app.use("api/auth", authRoutes): http://localhost:3000/auth/api/register, this forms this url.
+It handles the get request.
+
+#db.js:
+Used for connecting with the database.
+
+
+
+# Messaging:
+# Backend:
+# Message.js:
+It creates a model named Message that communicates with the mongodb.

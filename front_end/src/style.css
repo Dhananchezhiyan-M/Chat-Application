@@ -1,0 +1,98 @@
+/* RESET */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+
+    /* 🌈 MODERN GRADIENT BACKGROUND */
+    background: linear-gradient(-45deg, #667eea, #764ba2, #6b73ff, #9a6bff);
+    background-size: 400% 400%;
+    animation: gradientBG 10s ease infinite;
+}
+
+/* ANIMATION */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* CENTER ALL PAGES */
+.bg-home,
+.bg-login,
+.bg-register {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* GLASS CARD */
+.card {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    width: 350px;
+
+    box-shadow: 0px 10px 40px rgba(0,0,0,0.3);
+    color: white;
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* TITLE */
+.title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* SUBTEXT */
+.subtitle {
+    margin-bottom: 20px;
+    color: #ddd;
+}
+
+/* INPUTS */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+/* BUTTONS */
+button {
+    padding: 12px 20px;
+    margin: 8px;
+    border: none;
+    border-radius: 10px;
+    background: #667eea;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #5a67d8;
+}
+
+/* BUTTON GROUP */
+.btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* MESSAGE */
+.message {
+    margin-top: 10px;
+    color: #ffcccc;
+}

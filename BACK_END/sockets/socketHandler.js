@@ -1,0 +1,209 @@
+const Message = require("../models/Message");
+const Room = require("../models/Room");
+
+let users = [];
+
+const socketHandler = (io) => {
+    io.on("connection", (socket) => {
+        console.log("New client connected:", socket.id);
+
+        // 🔥 JOIN SERVER
+        socket.on("join server", async (username) => {
+            try {
+                const user = { username, id: socket.id };
+
+                // ✅ prevent duplicate users
+                const existingUser = users.find(u => u.id === socket.id);
+                if (!existingUser) {
+                    users.push(user);
+                }
+
+                io.emit("new user", users);
+                console.log("Users:", users);
+
+            } catch (err) {
+                console.error("Join server error:", err);
+            }
+        });
+
+        // 🔥 JOIN ROOM
+        socket.on("join room", async (room, cb) => {
+            try {
+                socket.join(room);
+
+                const oldMessages = await Message.find({ room }).sort({ timestamp: 1 });
+
+                cb(oldMessages); // send old messages to frontend
+
+            } catch (err) {
+                console.error("Join room error:", err);
+            }
+        });
+
+        // 🔥 SEND MESSAGE
+        socket.on("send message", async ({ content, sender, senderId, chatName }) => {
+            try {
+                const newMessage = new Message({
+                    sender,
+                    content,
+                    room: chatName,
+                    senderId
+                });
+
+                await newMessage.save();
+
+                io.to(chatName).emit("new message", {
+                    content,
+                    sender,
+                    chatName,
+                    senderId
+                });
+
+            } catch (err) {
+                console.error("Message error:", err);
+            }
+        });
+
+        // ===============================
+        // 🔐 PRIVATE CHAT
+        // ===============================
+
+        // CREATE ROOM
+        socket.on("create room", async (username, cb) => {
+            try {
+
+                const roomId = Math.random()
+                    .toString(36)
+                    .substring(2, 8);
+
+                const newRoom = new Room({
+                    roomId,
+                    createdBy: username
+                });
+
+                await newRoom.save();
+
+                socket.join(roomId);
+
+                cb(roomId);
+
+            } catch (err) {
+                console.error("Create room error:", err);
+            }
+        });
+
+
+        // JOIN PRIVATE ROOM
+        socket.on("join private room", async (roomId, cb) => {
+            try {
+
+                const room = await Room.findOne({ roomId });
+
+                if (!room) {
+                    return cb({
+                        error: "No chat available for this room code"
+                    });
+                }
+
+                socket.join(roomId);
+                // ✅ UPDATE USERS IN ROOM
+                const roomSockets =
+                    await io.in(roomId).fetchSockets();
+
+                const roomUsers = roomSockets.map((s) => {
+
+                    const user = users.find(
+                        (u) => u.id === s.id
+                    );
+
+                    return user;
+
+                }).filter(Boolean);
+
+                io.to(roomId).emit(
+                    "room users",
+                    roomUsers
+                );
+
+                const oldMessages = await Message.find({
+                    room: roomId
+                }).sort({ timestamp: 1 });
+
+                cb({
+                    messages: oldMessages
+                });
+
+            } catch (err) {
+                console.error("Join private room error:", err);
+            }
+        });
+
+
+        // SEND PRIVATE MESSAGE
+        socket.on(
+            "send private message",
+            async ({ content, sender, senderId, roomId }) => {
+
+            try {
+
+                    const newMessage = new Message({
+                        sender,
+                        content,
+                        room: roomId,
+                        senderId
+                    });
+
+                    await newMessage.save();
+
+                    io.to(roomId).emit(
+                        "new private message",
+                        {
+                            content,
+                            sender,
+                            senderId
+                        }
+                    );
+
+                } catch (err) {
+                    console.error("Private message error:", err);
+                }
+            }
+        );
+
+        // 🔥 ROOM USERS
+        socket.on("get room users", (roomId) => {
+
+            const clients = io.sockets.adapter.rooms.get(roomId);
+
+            if (!clients) {
+                return socket.emit("room users", []);
+            }
+
+            const roomUsers = users.filter(
+                user => clients.has(user.id)
+            );
+
+            socket.emit("room users", roomUsers);
+        });
+
+        // 🔥 DISCONNECT
+        socket.on("disconnect", async () => {
+            try {
+                users = users.filter(u => u.id !== socket.id);
+
+                io.emit("new user", users);
+
+                if (users.length === 0) {
+                    console.log("All users left → messages cleared");
+                }
+
+                console.log("User disconnected:", socket.id);
+
+            } catch (err) {
+                console.error("Disconnect error:", err);
+            }
+        });
+    });
+};
+
+module.exports = socketHandler;

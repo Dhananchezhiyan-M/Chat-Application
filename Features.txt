@@ -1,0 +1,12 @@
+1. Typing Indicator: Ram is typing like that.
+socket.emit("typing")
+socket.on("typing")
+2. Delivery status: sent, delivered, seen
+3. Message Timing: new Date(msg.timestamp).toLocaleTimeString()
+4. Deleting message
+5. Profile Avatars
+6. Emoji support: npm install emoji-picker-react
+7. Mobile Friendly UI.
+8. Dark Mode
+9. Notification sound.
+10. Room Expiry timing.
