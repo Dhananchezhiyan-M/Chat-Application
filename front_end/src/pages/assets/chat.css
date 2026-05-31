@@ -22,6 +22,7 @@
 .chat-main {
     display: flex;
     flex: 1;
+    overflow: hidden;
 }
 
 /* CHAT BOX */
@@ -30,6 +31,9 @@
     display: flex;
     flex-direction: column;
     background: #efeae2;
+
+    height: 100%;
+    overflow: hidden;
 }
 
 /* MESSAGE LIST (NEW) */
@@ -39,6 +43,7 @@
     flex-direction: column;
     overflow-y: auto;
     padding: 20px;
+    min-height: 0;
 }
 
 /* MESSAGE COMMON */
@@ -51,6 +56,7 @@
     font-size: 14px;
     background: white;
     align-self: flex-start;
+    white-space: pre-wrap;
 }
 
 /* YOUR MESSAGE */
@@ -195,4 +201,102 @@
     background: #6c7cff;
     color: white;
     cursor: pointer;
+}
+
+.typing-indicator {
+    height: 20px;
+    padding-left: 15px;
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+}
+
+.message-status {
+    font-size: 12px;
+    color: #666;
+    display: block;
+    text-align: right;
+    margin-top: 4px;
+}
+
+.message-time {
+    font-size: 11px;
+    color: #666;
+    margin-top: 5px;
+    text-align: right;
+}
+
+.message-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.emoji-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* EMOJI BUTTON */
+.emoji-btn {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+/* EMOJI PICKER POPUP */
+.emoji-picker {
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+
+    z-index: 1000;
+
+    border-radius: 15px;
+
+    overflow: hidden;
+
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* CLOSE BUTTON */
+.close-emoji {
+    position: absolute;
+
+    top: 10px;
+    right: 10px;
+
+    z-index: 1001;
+
+    width: 30px;
+    height: 30px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #075e54;
+
+    color: white;
+
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 18px;
+
+    padding: 0;
+}
+
+.close-emoji:focus,
+.close-emoji:active {
+    outline: none;
+    background: #075e54;
 }

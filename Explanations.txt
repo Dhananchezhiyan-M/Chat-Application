@@ -48,3 +48,68 @@ Used for connecting with the database.
 # Backend:
 # Message.js:
 It creates a model named Message that communicates with the mongodb.
+
+
+
+
+1. User types message in the chat box.
+
+2. Frontend stores the typed value inside message state.
+
+3. When Send button is clicked,
+   frontend uses:
+
+   socket.emit("send message", {
+       content,
+       sender,
+       senderId,
+       chatName
+   });
+
+4. Frontend sends these values to backend:
+   - content
+   - sender
+   - senderId
+   - chatName
+
+5. Backend receives them using:
+
+   socket.on("send message", async (...) => {
+
+6. Backend creates a new MongoDB message document using:
+
+   const newMessage = new Message({
+       sender,
+       content,
+       room: chatName,
+       senderId
+   });
+
+7. Backend saves the message into MongoDB using:
+
+   await newMessage.save();
+
+8. After saving successfully,
+   backend broadcasts the message to all users
+   inside that room using:
+
+   io.to(chatName).emit("new message", {
+       content,
+       sender,
+       chatName,
+       senderId,
+       status: "sent"
+   });
+
+9. All users inside that room receive the message instantly.
+
+10. Frontend receives the message using:
+
+    socket.on("new message")
+
+11. Frontend updates messages state using:
+
+    setMessages(...)
+
+12. React rerenders the UI,
+    and the message appears in the chat box.

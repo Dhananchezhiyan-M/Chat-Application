@@ -5,6 +5,10 @@ const messageSchema = new mongoose.Schema({
     content: String,
     room: String,
     senderId: String,
+    status: {
+        type: String,
+        default: "sent"
+    },
     timestamp: {
         type: Date,
         default: Date.now,

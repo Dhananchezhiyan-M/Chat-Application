@@ -2,14 +2,19 @@ import React from "react";
 import { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import "./assets/chat.css";
+import EmojiPicker from "emoji-picker-react";
 
 function ChatPage({ username, logout , goBack}) {
     const [mySocketId, setMySocketId] = useState("");
 
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
+    const messagesEndRef = useRef(null);
+    const [typingUsers, setTypingUsers] = useState([]);
     const [users, setUsers] = useState([]);
     const socketRef = useRef();
+
+    const [showEmoji, setShowEmoji] = useState(false);
 
     useEffect(() => {
         socketRef.current = io("http://localhost:3000");
@@ -29,8 +34,40 @@ function ChatPage({ username, logout , goBack}) {
             setMessages((prev) => [...prev, msg]);
         });
 
+        // 🔥 USER TYPING
+        socketRef.current.on("typing", (username) => {
+
+            setTypingUsers((prev) => {
+
+                if (prev.includes(username)) {
+                    return prev;
+                }
+
+                return [...prev, username];
+            });
+        });
+
+
+        // 🔥 STOP TYPING
+        socketRef.current.on("stop typing", (username) => {
+
+            setTypingUsers((prev) =>
+                prev.filter((u) => u !== username)
+            );
+        });
+
         return () => socketRef.current.disconnect();
     }, [username]);
+
+    useEffect(() => {
+
+        messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth"
+        });
+
+    }, [messages]);
+
+    let typingTimeout;
 
     const sendMessage = () => {
         if (!message.trim()) return;
@@ -43,6 +80,27 @@ function ChatPage({ username, logout , goBack}) {
         });
 
         setMessage("");
+    };
+
+    const handleTyping = (e) => {
+
+        setMessage(e.target.value);
+
+        socketRef.current.emit("typing", {
+            username,
+            room: "general"
+        });
+
+        clearTimeout(typingTimeout);
+
+        typingTimeout = setTimeout(() => {
+
+            socketRef.current.emit("stop typing", {
+                username,
+                room: "general"
+            });
+
+        }, 1000);
     };
 
     const handleKeyDown = (e) => {
@@ -94,23 +152,94 @@ function ChatPage({ username, logout , goBack}) {
                                 >
                                     <b>{msg.sender}</b>
                                     <p>{msg.content}</p>
+
+                                    <div className="message-footer">
+
+                                        <small className="message-time">
+                                            {new Date(msg.timestamp)
+                                                .toLocaleTimeString([], {
+                                                    hour: "2-digit",
+                                                    minute: "2-digit"
+                                                })}
+                                        </small>
+
+                                        {msg.sender === username && (
+                                            <span className="message-status">
+                                                ✓
+                                            </span>
+                                        )}
+
+                                    </div>
                                 </div>
+
                             );
                         })}
+                        <div ref={messagesEndRef}></div>
+                    </div>
+
+                    <div className="typing-indicator">
+
+                        {typingUsers.length === 1 &&
+                            `${typingUsers[0]} is typing...`}
+
+                        {typingUsers.length === 2 &&
+                            `${typingUsers[0]} and ${typingUsers[1]} are typing...`}
+
+                        {typingUsers.length > 2 &&
+                            `${typingUsers.length} people are typing...`}
+
                     </div>
 
                     {/* INPUT AREA */}
                     <div className="input-box">
+
+                        <div className="emoji-container">
+
+                            <button
+                                className="emoji-btn"
+                                onClick={() => setShowEmoji(!showEmoji)}
+                            >
+                                😊
+                            </button>
+
+                            {showEmoji && (
+                                <div className="emoji-picker">
+
+                                    <button
+                                        className="close-emoji"
+                                        onClick={() => setShowEmoji(false)}
+                                    >
+                                        ✖
+                                    </button>
+
+                                    <EmojiPicker
+                                        onEmojiClick={(emojiData) => {
+
+                                            setMessage(
+                                                prev => prev + emojiData.emoji
+                                            );
+                                        }}
+                                    />
+
+                                </div>
+                            )}
+
+                        </div>
+
                         <textarea
                             value={message}
-                            onChange={(e) => setMessage(e.target.value)}
+                            onChange={handleTyping}
                             onKeyDown={handleKeyDown}
                             placeholder="Type message..."
                         />
-                        <button onClick={sendMessage}>Send</button>
-                    </div>
 
+                        <button onClick={sendMessage}>
+                            Send
+                        </button>
+
+                    </div>
                 </div>
+
 
                 {/* RIGHT SIDE - USERS */}
                 <div className="chat-sidebar">

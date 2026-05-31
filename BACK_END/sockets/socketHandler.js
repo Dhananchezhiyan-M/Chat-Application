@@ -56,7 +56,9 @@ const socketHandler = (io) => {
                     content,
                     sender,
                     chatName,
-                    senderId
+                    senderId,
+                    status: "sent",
+                    timestamp: newMessage.timestamp
                 });
 
             } catch (err) {
@@ -160,7 +162,9 @@ const socketHandler = (io) => {
                         {
                             content,
                             sender,
-                            senderId
+                            senderId,
+                            timestamp: newMessage.timestamp,
+                            status: "sent"
                         }
                     );
 
@@ -169,6 +173,19 @@ const socketHandler = (io) => {
                 }
             }
         );
+
+        // 🔥 TYPING INDICATOR
+        socket.on("typing", ({ username, room }) => {
+
+            socket.to(room).emit("typing", username);
+
+        });
+
+        socket.on("stop typing", ({ username, room }) => {
+
+            socket.to(room).emit("stop typing", username);
+
+        });
 
         // 🔥 ROOM USERS
         socket.on("get room users", (roomId) => {
