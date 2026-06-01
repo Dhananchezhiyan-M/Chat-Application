@@ -3,7 +3,14 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background: #ece5dd;
+
+    background: linear-gradient(
+        135deg,
+        #dfe9f3 0%,
+        #ffffff 100%
+    );
+
+    font-family: Arial, sans-serif;
 }
 
 /* HEADER */
@@ -11,11 +18,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     padding: 15px 20px;
-    background: #075e54;
+
+    background: rgba(7, 94, 84, 0.95);
+
+    backdrop-filter: blur(10px);
+
     color: white;
+
     font-size: 18px;
     font-weight: bold;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+    z-index: 10;
 }
 
 /* MAIN AREA */
@@ -28,9 +45,11 @@
 /* CHAT BOX */
 .chat-box {
     flex: 3;
+
     display: flex;
     flex-direction: column;
-    background: #efeae2;
+
+    background: #f5f7fb;
 
     height: 100%;
     overflow: hidden;
@@ -48,20 +67,36 @@
 
 /* MESSAGE COMMON */
 .chat-message {
-    padding: 10px 15px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    max-width: 60%;
+    padding: 12px 16px;
+
+    margin-bottom: 12px;
+
+    border-radius: 18px;
+
+    max-width: 65%;
+
     word-wrap: break-word;
+
     font-size: 14px;
+
     background: white;
+
     align-self: flex-start;
+
     white-space: pre-wrap;
+
+    box-shadow:
+        0 2px 10px rgba(0,0,0,0.08);
 }
 
 /* YOUR MESSAGE */
 .my-message {
-    background: #dcf8c6;
+    background: linear-gradient(
+        135deg,
+        #dcf8c6,
+        #c8f7b8
+    );
+
     align-self: flex-end;
 }
 
@@ -74,9 +109,16 @@
 /* SIDEBAR */
 .chat-sidebar {
     flex: 1;
-    background: #ffffff;
-    border-left: 1px solid #ddd;
+
+    background: rgba(255,255,255,0.7);
+
+    backdrop-filter: blur(10px);
+
+    border-left: 1px solid rgba(255,255,255,0.3);
+
     padding: 15px;
+
+    overflow-y: auto;
 }
 
 .chat-sidebar h3 {
@@ -97,36 +139,68 @@
 /* INPUT AREA (UPDATED) */
 .input-box {
     display: flex;
-    padding: 10px;
-    background: #f0f0f0;
-    border-top: 1px solid #ccc;
+    align-items: center;
+
+    padding: 12px;
+
+    background: rgba(255,255,255,0.8);
+
+    backdrop-filter: blur(10px);
+
+    border-top: 1px solid rgba(0,0,0,0.05);
+
+    gap: 10px;
 }
 
 /* TEXTAREA (UPDATED) */
 .input-box textarea {
     flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
+
+    padding: 12px 15px;
+
+    border-radius: 25px;
+
+    border: none;
+
     outline: none;
+
     font-size: 14px;
+
     resize: none;
+
     height: 50px;
+
+    background: white;
+
+    box-shadow:
+        inset 0 1px 4px rgba(0,0,0,0.08);
 }
 
 /* SEND BUTTON */
 .input-box button {
-    margin-left: 10px;
-    padding: 10px 20px;
-    border-radius: 20px;
+    padding: 12px 20px;
+
+    border-radius: 25px;
+
     border: none;
-    background: #075e54;
+
+    background: linear-gradient(
+        135deg,
+        #075e54,
+        #0b7a6f
+    );
+
     color: white;
+
     cursor: pointer;
+
+    font-weight: bold;
+
+    transition: 0.2s ease;
 }
 
 .input-box button:hover {
-    background: #0b7a6f;
+    transform: scale(1.05);
 }
 
 /* LOGOUT BUTTON */
@@ -299,4 +373,90 @@
 .close-emoji:active {
     outline: none;
     background: #075e54;
+}
+
+/* ================================= */
+/* MOBILE RESPONSIVE */
+/* ================================= */
+
+@media screen and (max-width: 768px) {
+
+    /* MAIN AREA */
+    .chat-main {
+        flex-direction: column;
+    }
+
+    /* CHAT BOX */
+    .chat-box {
+        flex: 1;
+        width: 100%;
+    }
+
+    /* SIDEBAR */
+    .chat-sidebar {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid #ccc;
+
+        max-height: 120px;
+
+        overflow-y: auto;
+    }
+
+    /* MESSAGE WIDTH */
+    .chat-message {
+        max-width: 85%;
+        font-size: 13px;
+    }
+
+    /* HEADER */
+    .chat-header {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    /* ROOM CODE */
+    .room-code {
+        font-size: 14px;
+    }
+
+    /* INPUT AREA */
+    .input-box {
+        padding: 8px;
+    }
+
+    /* TEXTAREA */
+    .input-box textarea {
+        height: 45px;
+        font-size: 13px;
+    }
+
+    /* BUTTONS */
+    .input-box button,
+    .chat-header button,
+    .header-left button {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* JOIN ROOM INPUT */
+    .join-room-container input {
+        width: 90%;
+    }
+
+    /* EMOJI PICKER */
+    .emoji-picker {
+        bottom: 60px;
+        left: -20px;
+
+        transform: scale(0.9);
+        transform-origin: bottom left;
+    }
+
+    /* ROOM HEADER */
+    .room-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
 }

@@ -3,6 +3,9 @@ import io from "socket.io-client";
 import "./assets/chat.css";
 import EmojiPicker from "emoji-picker-react";
 
+import sendSound from "../audio/send-1.mp3";
+import receiveSound from "../audio/receive-1.mp3";
+
 function PrivateChatPage({ username, logout, goBack }) {
     const socketRef = useRef();
 
@@ -21,6 +24,9 @@ function PrivateChatPage({ username, logout, goBack }) {
 
     const [showEmoji, setShowEmoji] = useState(false);
 
+    const sendAudio = new Audio(sendSound);
+    const receiveAudio = new Audio(receiveSound);
+
     useEffect(() => {
         socketRef.current = io("http://localhost:3000");
 
@@ -31,6 +37,9 @@ function PrivateChatPage({ username, logout, goBack }) {
 
         socketRef.current.on("new private message", (msg) => {
             setMessages((prev) => [...prev, msg]);
+            if (msg.sender !== username) {
+                receiveAudio.play();
+            }
         });
 
         socketRef.current.on("room users", (roomUsers) => {
@@ -106,7 +115,7 @@ function PrivateChatPage({ username, logout, goBack }) {
             senderId: socketRef.current.id,
             roomId
         });
-
+        sendAudio.play();
         setMessage("");
     };
 

@@ -4,6 +4,9 @@ import io from "socket.io-client";
 import "./assets/chat.css";
 import EmojiPicker from "emoji-picker-react";
 
+import sendSound from "../audio/send-1.mp3";
+import receiveSound from "../audio/receive-1.mp3";
+
 function ChatPage({ username, logout , goBack}) {
     const [mySocketId, setMySocketId] = useState("");
 
@@ -15,6 +18,9 @@ function ChatPage({ username, logout , goBack}) {
     const socketRef = useRef();
 
     const [showEmoji, setShowEmoji] = useState(false);
+
+    const sendAudio = new Audio(sendSound);
+    const receiveAudio = new Audio(receiveSound);
 
     useEffect(() => {
         socketRef.current = io("http://localhost:3000");
@@ -32,6 +38,9 @@ function ChatPage({ username, logout , goBack}) {
 
         socketRef.current.on("new message", (msg) => {
             setMessages((prev) => [...prev, msg]);
+            if (msg.sender !== username) {
+                receiveAudio.play();
+            }
         });
 
         // 🔥 USER TYPING
@@ -78,7 +87,7 @@ function ChatPage({ username, logout , goBack}) {
             senderId: username,
             chatName: "general"
         });
-
+        sendAudio.play();
         setMessage("");
     };
 
