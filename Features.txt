@@ -10,3 +10,9 @@ socket.on("typing")
 8. Dark Mode
 9. Notification sound.
 10. Room Expiry timing.
+
+
+-------------------------
+Room Expiry timing:
+Delete message.
+Dark Mode.

@@ -17,8 +17,6 @@ const socketHandler = (io) => {
                 if (!existingUser) {
                     users.push(user);
                 }
-
-                io.emit("new user", users);
                 console.log("Users:", users);
 
             } catch (err) {
@@ -30,6 +28,27 @@ const socketHandler = (io) => {
         socket.on("join room", async (room, cb) => {
             try {
                 socket.join(room);
+
+                // ✅ UPDATE ROOM USERS
+                const roomSockets =
+                    await io.in(room).fetchSockets();
+
+                const roomUsers = roomSockets
+                    .map((s) => {
+
+                        const user = users.find(
+                            (u) => u.id === s.id
+                        );
+
+                        return user;
+
+                    })
+                    .filter(Boolean);
+
+                io.to(room).emit(
+                    "room users",
+                    roomUsers
+                );
 
                 const oldMessages = await Message.find({ room }).sort({ timestamp: 1 });
 
@@ -203,12 +222,79 @@ const socketHandler = (io) => {
             socket.emit("room users", roomUsers);
         });
 
-        // 🔥 DISCONNECT
-        socket.on("disconnect", async () => {
+        // 🔥 LEAVE ROOM
+        socket.on("leave room", async (roomId) => {
+
             try {
+
+                socket.leave(roomId);
+
+                const roomSockets =
+                    await io.in(roomId)
+                        .fetchSockets();
+
+                const roomUsers = roomSockets
+                    .map((s) => {
+
+                        const user = users.find(
+                            (u) => u.id === s.id
+                        );
+
+                        return user;
+
+                    })
+                    .filter(Boolean);
+
+                io.to(roomId).emit(
+                    "room users",
+                    roomUsers
+                );
+
+            } catch (err) {
+                console.error(
+                    "Leave room error:",
+                    err
+                );
+            }
+        });
+
+        // 🔥 DISCONNECT
+        socket.on("disconnecting", async () => {
+            try {
+                const rooms = [...socket.rooms];//gets all the rooms of the particular socket id.
+
                 users = users.filter(u => u.id !== socket.id);
 
                 io.emit("new user", users);
+
+                // ✅ UPDATE ALL ROOMS
+
+                for (const roomId of rooms) {
+
+                    if (roomId !== socket.id) continue;//if the room ID matches with the socket id.
+
+                        const roomSockets =
+                            await io.in(roomId)
+                                .fetchSockets();
+
+                        const roomUsers = roomSockets
+                            .map((s) => {
+
+                                const user = users.find(
+                                    (u) => u.id === s.id
+                                );
+
+                                return user;
+
+                            })
+                            .filter(Boolean);
+
+                        io.to(roomId).emit(
+                            "room users",
+                            roomUsers
+                        );
+                }
+
 
                 if (users.length === 0) {
                     console.log("All users left → messages cleared");

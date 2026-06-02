@@ -11,6 +11,7 @@ function PrivateChatPage({ username, logout, goBack }) {
 
     const [mode, setMode] = useState(""); // create / join
     const [roomId, setRoomId] = useState("");
+    const roomIdRef = useRef("");
     const [joined, setJoined] = useState(false);
 
     const messagesEndRef = useRef(null);
@@ -68,8 +69,21 @@ function PrivateChatPage({ username, logout, goBack }) {
             );
         });
 
-        return () => socketRef.current.disconnect();
+        return () => {
+
+            if (roomIdRef.current) {
+
+                socketRef.current.emit(
+                    "leave room",
+                    roomIdRef.current
+                );
+            }
+        };
     }, []);
+
+    useEffect(() => {
+        roomIdRef.current = roomId;
+    }, [roomId]);
 
     useEffect(() => {
     
@@ -77,14 +91,14 @@ function PrivateChatPage({ username, logout, goBack }) {
                 behavior: "smooth"
             });
     
-        }, [messages]);
+    }, [messages]);
 
     // 🔥 CREATE ROOM
     const createRoom = () => {
         socketRef.current.emit("create room", username, (roomId) => {
             setRoomId(roomId);
+            socketRef.current.emit("join room", roomId, () => {});
             setJoined(true);
-            socketRef.current.emit("get room users", roomId);
         });
     };
 
@@ -98,7 +112,11 @@ function PrivateChatPage({ username, logout, goBack }) {
             } else {
                 setMessages(res.messages || []);
                 setJoined(true);
-                socketRef.current.emit("get room users", roomId);
+                socketRef.current.emit(
+                    "join room",
+                    roomId,
+                    () => {}
+                );
             }
         });
     };
@@ -164,7 +182,7 @@ function PrivateChatPage({ username, logout, goBack }) {
                         <h2>Private Chat</h2>
 
                         {joined && (
-                            <span class="room-code">
+                            <span className="room-code">
                                 Room Code: {roomId}
                             </span>
                         )}
@@ -319,7 +337,7 @@ function PrivateChatPage({ username, logout, goBack }) {
 
                             <h3>Users In Room</h3>
 
-                            {users.length <= 1 ? (
+                            {users.length <= 0 ? (
 
                                 <p>No available users</p>
 

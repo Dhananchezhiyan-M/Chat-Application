@@ -34,7 +34,15 @@ function ChatPage({ username, logout , goBack}) {
             setMessages(msgs);
         });
 
-        socketRef.current.on("new user", setUsers);
+        socketRef.current.emit(
+            "get room users",
+            "general"
+        );//asking backend to calculate and send them.
+
+        socketRef.current.on(
+            "room users",
+            setUsers
+        );
 
         socketRef.current.on("new message", (msg) => {
             setMessages((prev) => [...prev, msg]);
@@ -65,7 +73,14 @@ function ChatPage({ username, logout , goBack}) {
             );
         });
 
-        return () => socketRef.current.disconnect();
+        return () => {
+
+            socketRef.current.emit(
+                "leave room",
+                "general"
+            );
+
+        };
     }, [username]);
 
     useEffect(() => {
@@ -254,7 +269,7 @@ function ChatPage({ username, logout , goBack}) {
                 <div className="chat-sidebar">
                     <h3>Users Online</h3>
 
-                    {users.length <= 1 ? (
+                    {users.length <= 0 ? (
                         <p>No available users</p>
                     ) : (
                         sortedUsers.map((u) => (
