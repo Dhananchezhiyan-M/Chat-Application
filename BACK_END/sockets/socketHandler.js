@@ -106,7 +106,10 @@ const socketHandler = (io) => {
 
                 socket.join(roomId);
 
-                cb(roomId);
+                cb({
+                    roomId,
+                    createdAt: newRoom.createdAt
+                });
 
             } catch (err) {
                 console.error("Create room error:", err);
@@ -151,7 +154,8 @@ const socketHandler = (io) => {
                 }).sort({ timestamp: 1 });
 
                 cb({
-                    messages: oldMessages
+                    messages: oldMessages,
+                    createdAt: room.createdAt
                 });
 
             } catch (err) {

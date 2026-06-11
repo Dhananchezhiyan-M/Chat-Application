@@ -1,4 +1,5 @@
 import React from "react";
+import "../pages.css";
 
 function HomePage({ goToLogin, goToRegister }) {
     return (

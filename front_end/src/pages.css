@@ -1,0 +1,492 @@
+/* ==========================================================================
+   PAGES — Auth & Selection UI
+   HomePage · LoginPage · RegisterPage · ChatSelectionPage
+   Glassmorphism · Premium · Matches chat.css design system
+   ==========================================================================
+   IMPORT: Add this to each page component:
+     import "../pages.css";
+   (or merge into your style.css)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   FONT — same as chat.css (no-op if already loaded)
+   -------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+
+/* --------------------------------------------------------------------------
+   PAGE TOKENS — mirrors chat.css :root so both files are consistent
+   -------------------------------------------------------------------------- */
+:root {
+  --p-font:          'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Brand */
+  --p-teal-deep:     #075e54;
+  --p-teal-dark:     #064e46;
+  --p-teal-mid:      #0a3028;
+  --p-green:         #25d366;
+  --p-green-mid:     #00a884;
+  --p-green-glow:    rgba(37, 211, 102, 0.22);
+  --p-green-subtle:  rgba(37, 211, 102, 0.10);
+
+  /* Card glass */
+  --p-glass-bg:      rgba(255, 255, 255, 0.075);
+  --p-glass-border:  rgba(255, 255, 255, 0.115);
+  --p-glass-shadow:  0 28px 72px rgba(0, 0, 0, 0.44),
+                     0 1px 0   rgba(255, 255, 255, 0.09) inset,
+                     0 -1px 0  rgba(0, 0, 0, 0.18) inset;
+
+  /* Text on dark */
+  --p-text-white:    #ffffff;
+  --p-text-dim:      rgba(255, 255, 255, 0.5);
+  --p-text-dimmer:   rgba(255, 255, 255, 0.32);
+
+  /* Inputs */
+  --p-input-bg:      rgba(255, 255, 255, 0.08);
+  --p-input-border:  rgba(255, 255, 255, 0.12);
+
+  /* Toast */
+  --p-success-text:  #4ade80;
+  --p-success-bg:    rgba(37, 211, 102, 0.11);
+  --p-success-bd:    rgba(37, 211, 102, 0.28);
+  --p-error-text:    #ff8a80;
+  --p-error-bg:      rgba(255, 82, 82, 0.10);
+  --p-error-bd:      rgba(255, 82, 82, 0.26);
+
+  /* Motion */
+  --p-ease:          cubic-bezier(0.4, 0, 0.2, 1);
+  --p-spring:        cubic-bezier(0.34, 1.56, 0.64, 1);
+  --p-dur:           0.2s;
+}
+
+
+/* ==========================================================================
+   FULL-PAGE WRAPPERS — shared structure
+   ========================================================================== */
+.bg-home,
+.bg-login,
+.bg-register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  font-family: var(--p-font);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Ambient light orb — top-right ───────────────────────────────────────── */
+.bg-home::before,
+.bg-login::before,
+.bg-register::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 55% 45% at 90% 10%,
+      rgba(37, 211, 102, 0.09) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 50% at 10% 85%,
+      rgba(0, 168, 132, 0.07) 0%,
+      transparent 65%
+    );
+}
+
+/* ── Page-specific gradient backgrounds ────────────────────────────────── */
+.bg-home {
+  background: linear-gradient(
+    145deg,
+    #071a14  0%,
+    #0a3028 42%,
+    #0d5046 78%,
+    #075e54 100%
+  );
+}
+
+.bg-login {
+  background: linear-gradient(
+    145deg,
+    #06101c  0%,
+    #082c26 40%,
+    #0b4840 75%,
+    #0a5e54 100%
+  );
+}
+
+.bg-register {
+  background: linear-gradient(
+    145deg,
+    #051018  0%,
+    #062c28 42%,
+    #084038 76%,
+    #064e46 100%
+  );
+}
+
+
+/* ==========================================================================
+   GLASS CARD
+   ========================================================================== */
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding: 42px 38px 36px;
+  border-radius: 28px;
+
+  background: var(--p-glass-bg);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid var(--p-glass-border);
+  box-shadow: var(--p-glass-shadow);
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+
+  animation: cardEntrance 0.55s var(--p-spring) both;
+}
+
+/* ── Brand icon at top of card ─────────────────────────────────────────── */
+.card::before {
+  content: '💬';
+  display: block;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  line-height: 58px;
+  text-align: center;
+  font-size: 26px;
+  align-self: center;
+  margin-bottom: 4px;
+
+  background: linear-gradient(135deg, var(--p-teal-deep), var(--p-green-mid));
+  box-shadow:
+    0 8px 22px rgba(7, 94, 84, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.12) inset;
+}
+
+
+/* ==========================================================================
+   TITLE & SUBTITLE
+   ========================================================================== */
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--p-text-white);
+  letter-spacing: -0.03em;
+  text-align: center;
+  margin: 0;
+  line-height: 1.2;
+  /* Subtle text shadow for depth on dark bg */
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+  font-size: 14.5px;
+  color: var(--p-text-dim);
+  text-align: center;
+  margin: 0;
+  margin-top: -8px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+
+/* ==========================================================================
+   FORM INPUTS
+   ========================================================================== */
+.card input[type="text"],
+.card input[type="password"] {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 14px;
+
+  background: var(--p-input-bg);
+  border: 1.5px solid var(--p-input-border);
+
+  color: var(--p-text-white);
+  font-size: 15px;
+  font-family: var(--p-font);
+  font-weight: 500;
+  outline: none;
+  margin: 0;
+
+  transition:
+    background  var(--p-dur) var(--p-ease),
+    border-color var(--p-dur) var(--p-ease),
+    box-shadow   var(--p-dur) var(--p-ease);
+}
+
+.card input::placeholder {
+  color: var(--p-text-dimmer);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.card input:focus {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(37, 211, 102, 0.52);
+  box-shadow: 0 0 0 3px var(--p-green-glow);
+}
+
+
+/* ==========================================================================
+   BUTTON GROUP — paired action buttons
+   ========================================================================== */
+.btn-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.btn-group button {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 14.5px;
+  font-family: var(--p-font);
+  letter-spacing: 0.01em;
+  transition:
+    transform     0.25s var(--p-spring),
+    box-shadow    var(--p-dur) var(--p-ease),
+    background    var(--p-dur) var(--p-ease),
+    border-color  var(--p-dur) var(--p-ease);
+}
+
+/* ── Primary (first button in group) ───────────────────────────────────── */
+.btn-group button:first-child {
+  background: linear-gradient(135deg, var(--p-green) 0%, var(--p-green-mid) 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 18px rgba(37, 211, 102, 0.38);
+}
+
+.btn-group button:first-child:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 26px rgba(37, 211, 102, 0.5);
+}
+
+.btn-group button:first-child:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 10px rgba(37, 211, 102, 0.3);
+}
+
+/* ── Ghost (second button in group) ───────────────────────────────────── */
+.btn-group button:last-child {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.82);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+}
+
+.btn-group button:last-child:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+.btn-group button:last-child:active {
+  transform: translateY(0);
+}
+
+
+/* ==========================================================================
+   STANDALONE LOGOUT BUTTON — ChatSelectionPage
+   ──────────────────────────────────────────────────────────────────────────
+   JSX CHANGE: Add className="logout-btn" to the Logout <button>
+   <button className="logout-btn" onClick={logout}>Logout</button>
+   ========================================================================== */
+.logout-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 100px;
+
+  background: transparent;
+  color: var(--p-text-dim);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--p-font);
+  letter-spacing: 0.02em;
+  margin-top: -4px;
+
+  transition:
+    color        var(--p-dur) var(--p-ease),
+    background   var(--p-dur) var(--p-ease),
+    border-color var(--p-dur) var(--p-ease);
+}
+
+.logout-btn:hover {
+  background: rgba(255, 82, 82, 0.1);
+  color: rgba(255, 130, 130, 0.9);
+  border-color: rgba(255, 82, 82, 0.26);
+}
+
+
+/* ==========================================================================
+   TOAST MESSAGE
+   ──────────────────────────────────────────────────────────────────────────
+   JSX CHANGE (LoginPage & RegisterPage):
+
+   1. Change state:
+      const [message, setMessage] = useState({ text: "", type: "" });
+
+   2. On success:
+      setMessage({ text: response.data.message, type: "success" });
+      setMessage({ text: "", type: "" });   ← on clear
+
+   3. On error:
+      setMessage({ text: "...", type: "error" });
+
+   4. Render:
+      <p className={`message${message.type ? ` message--${message.type}` : ""}`}>
+        {message.text}
+      </p>
+   ========================================================================== */
+
+/* Base — zero height / invisible when empty */
+.message {
+  font-family: var(--p-font);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 12px;
+  letter-spacing: 0.01em;
+  line-height: 1.45;
+
+  /* Collapsed by default — no gap when no message */
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0 16px;
+  margin: 0;
+
+  transition:
+    max-height  0.35s var(--p-ease),
+    opacity     0.3s  var(--p-ease),
+    padding     0.3s  var(--p-ease);
+}
+
+/* Expanded when a type class is present */
+.message--success,
+.message--error {
+  max-height: 80px;
+  opacity: 1;
+  padding: 12px 18px;
+  animation: toastIn 0.38s var(--p-spring) both;
+}
+
+/* ── Success toast ─────────────────────────────────────────────────────── */
+.message--success {
+  background: var(--p-success-bg);
+  border: 1px solid var(--p-success-bd);
+  color: var(--p-success-text);
+  box-shadow: 0 0 16px rgba(37, 211, 102, 0.1);
+}
+
+.message--success::before {
+  content: '✓  ';
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* ── Error toast ───────────────────────────────────────────────────────── */
+.message--error {
+  background: var(--p-error-bg);
+  border: 1px solid var(--p-error-bd);
+  color: var(--p-error-text);
+  box-shadow: 0 0 16px rgba(255, 82, 82, 0.08);
+}
+
+.message--error::before {
+  content: '✕  ';
+  font-size: 13px;
+  font-weight: 900;
+}
+
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+
+/* Card entrance from below with gentle overshoot */
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.96);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Toast slides in from top */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* ==========================================================================
+   RESPONSIVE — Mobile
+   ========================================================================== */
+@media screen and (max-width: 480px) {
+
+  .card {
+    padding: 32px 22px 28px;
+    border-radius: 22px;
+    gap: 14px;
+  }
+
+  .card::before {
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    font-size: 22px;
+    border-radius: 15px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 13.5px;
+  }
+
+  .btn-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-group button {
+    width: 100%;
+    padding: 13px;
+  }
+
+  .card input[type="text"],
+  .card input[type="password"] {
+    padding: 13px 16px;
+    font-size: 14px;
+  }
+}

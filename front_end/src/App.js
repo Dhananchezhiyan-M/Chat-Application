@@ -5,7 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import ChatPage from "./pages/ChatPage";
 import ChatSelectionPage from "./pages/ChatSelectionPage";
 import PrivateChatPage from "./pages/PrivateChatPage";
-import "./style.css";
+import "./pages.css";
 
 function App() {
     const [page, setPage] = useState("home");

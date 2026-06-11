@@ -1,5 +1,5 @@
 import React from "react";
-import "../style.css";
+import "../pages.css";
 
 function ChatSelectionPage({ goToPublic, goToPrivate, logout }) {
     return (
@@ -17,7 +17,7 @@ function ChatSelectionPage({ goToPublic, goToPrivate, logout }) {
                     </button>
                 </div>
 
-                <button onClick={logout}>Logout</button>
+                <button className="logout-btn" onClick={logout}>Logout</button>
             </div>
         </div>
     );

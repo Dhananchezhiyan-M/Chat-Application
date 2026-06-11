@@ -150,6 +150,9 @@ function ChatPage({ username, logout , goBack}) {
                     <div>
                         <h2>Public Chat</h2>
                     </div>
+                    <div className="expiry-info">
+                        Messages auto-delete after 5 days
+                    </div>
                 </div>
                 <button onClick={logout}>Logout</button>
             </div>

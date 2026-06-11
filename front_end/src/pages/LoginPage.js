@@ -1,10 +1,11 @@
-import React, {useState} from "react"
-import axios from "axios"
+import React, {useState} from "react";
+import axios from "axios";
+import "../pages.css";
 
 function LoginPage({goToChat, goToHome, setLoggedInUser}) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
+    const [message, setMessage] = useState({ text: "", type: "" });
 
     const handleLogin = async() => {
         try {
@@ -14,7 +15,7 @@ function LoginPage({goToChat, goToHome, setLoggedInUser}) {
                     password
                 }
             );
-            setMessage(response.data.message);
+            setMessage({ text: response.data.message, type: "success" }); // ✅
             setLoggedInUser(response.data.username);
             setUsername("");
             setPassword("");
@@ -24,9 +25,9 @@ function LoginPage({goToChat, goToHome, setLoggedInUser}) {
             }, 1000)
         } catch (error) {
             if (error.response) {
-                setMessage(error.response.data.message);
+                setMessage({ text: error.response.data.message, type: "error" }); // ✅
             } else {
-                setMessage("Enter proper username and password..");
+                setMessage({ text: "Enter proper username and password..", type: "error" }); // ✅
             }
         }
     };
@@ -54,7 +55,9 @@ function LoginPage({goToChat, goToHome, setLoggedInUser}) {
                     <button onClick={goToHome}>Home</button>
                 </div>
 
-                <p className="message">{message}</p>
+                <p className={`message${message.type ? ` message--${message.type}` : ""}`}>
+                    {message.text}
+                </p>
             </div>
         </div>
     );

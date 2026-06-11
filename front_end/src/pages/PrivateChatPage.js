@@ -28,6 +28,9 @@ function PrivateChatPage({ username, logout, goBack }) {
     const sendAudio = new Audio(sendSound);
     const receiveAudio = new Audio(receiveSound);
 
+    const [roomCreatedAt, setRoomCreatedAt] = useState(null);
+    const [expiryTime, setExpiryTime] = useState("");
+
     useEffect(() => {
         socketRef.current = io("http://localhost:3000");
 
@@ -93,13 +96,74 @@ function PrivateChatPage({ username, logout, goBack }) {
     
     }, [messages]);
 
+    useEffect(() => {
+
+        if (!roomCreatedAt) return;
+
+        const expiry =
+            new Date(roomCreatedAt).getTime()
+            + (432000 * 1000); // 5 days
+
+        const timer = setInterval(() => {
+
+            const now = Date.now();
+
+            const remaining = expiry - now;
+
+            if (remaining <= 0) {
+                setExpiryTime("Expired");
+                clearInterval(timer);
+                return;
+            }
+
+            const days = Math.floor(
+                remaining / (1000 * 60 * 60 * 24)
+            );
+
+            const hours = Math.floor(
+                (remaining % (1000 * 60 * 60 * 24))
+                / (1000 * 60 * 60)
+            );
+
+            const minutes = Math.floor(
+                (remaining % (1000 * 60 * 60))
+                / (1000 * 60)
+            );
+
+            const seconds = Math.floor(
+                (remaining % (1000 * 60))
+                / 1000
+            );
+
+            setExpiryTime(
+                `${days}d ${hours}h ${minutes}m ${seconds}s`
+            );
+
+        }, 1000);
+
+        return () => clearInterval(timer);
+
+    }, [roomCreatedAt]);
+
     // 🔥 CREATE ROOM
     const createRoom = () => {
-        socketRef.current.emit("create room", username, (roomId) => {
-            setRoomId(roomId);
-            socketRef.current.emit("join room", roomId, () => {});
-            setJoined(true);
-        });
+        socketRef.current.emit(
+            "create room",
+            username,
+            (res) => {
+
+                setRoomId(res.roomId);
+                setRoomCreatedAt(res.createdAt);
+
+                socketRef.current.emit(
+                    "join room",
+                    res.roomId,
+                    () => {}
+                );
+
+                setJoined(true);
+            }
+        );
     };
 
     // 🔥 JOIN ROOM
@@ -111,6 +175,7 @@ function PrivateChatPage({ username, logout, goBack }) {
                 alert(res.error);
             } else {
                 setMessages(res.messages || []);
+                setRoomCreatedAt(res.createdAt);
                 setJoined(true);
                 socketRef.current.emit(
                     "join room",
@@ -186,6 +251,11 @@ function PrivateChatPage({ username, logout, goBack }) {
                                 Room Code: {roomId}
                             </span>
                         )}
+                        {joined && (
+                            <div className="expiry-timer">
+                                Expires in: {expiryTime}
+                            </div>
+                        )}
                     </div>
                 </div>
                 <button onClick={logout}>Logout</button>
@@ -193,15 +263,15 @@ function PrivateChatPage({ username, logout, goBack }) {
 
             {/* NOT JOINED */}
             {!joined ? (
-                <div style={{ padding: "40px", textAlign: "center" }}>
+                <div className="welcome-screen">
                     <h3>Choose Option</h3>
 
-                    <div style={{ marginBottom: "20px" }}>
-                        <button onClick={createRoom}>
+                    <div className="option-buttons">
+                        <button className="option-btn" onClick={createRoom}>
                             Create Chat
                         </button>
 
-                        <button onClick={() => setMode("join")}>
+                        <button className="option-btn" onClick={() => setMode("join")}>
                             Join Chat
                         </button>
                     </div>
@@ -214,7 +284,6 @@ function PrivateChatPage({ username, logout, goBack }) {
                                 value={roomId}
                                 onChange={(e) => setRoomId(e.target.value)}
                             />
-
                             <button onClick={joinRoom}>
                                 Join
                             </button>
