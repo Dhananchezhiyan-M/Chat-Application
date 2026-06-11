@@ -116,7 +116,7 @@ textarea {
 
 
 /* ==========================================================================
-   FULL PAGE CONTAINER
+    FULL PAGE CONTAINER
    ========================================================================== */
 .chat-container {
   display: flex;
@@ -580,7 +580,6 @@ textarea {
   box-shadow: 0 2px 8px rgba(7, 94, 84, 0.3);
 }
 
-
 /* ==========================================================================
    EMOJI BUTTON & PICKER
    ========================================================================== */
@@ -591,7 +590,6 @@ textarea {
   flex-shrink: 0;
 }
 
-/* Emoji trigger button */
 .emoji-btn {
   width: 42px;
   height: 42px;
@@ -619,7 +617,6 @@ textarea {
   transform: scale(0.96) rotate(0deg);
 }
 
-/* Emoji picker popup */
 .emoji-picker {
   position: absolute;
   bottom: 60px;
@@ -632,7 +629,6 @@ textarea {
   animation: pickerReveal var(--dur-md) var(--ease-spring) both;
 }
 
-/* Close button within picker */
 .close-emoji {
   position: absolute;
   top: 8px;
@@ -643,15 +639,12 @@ textarea {
   border-radius: 50%;
   border: none;
   padding: 0;
-
   background: var(--header-bg);
   color: #fff;
   font-size: 13px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   box-shadow: 0 2px 7px rgba(0, 0, 0, 0.25);
   transition:
     background var(--dur) var(--ease),
@@ -669,9 +662,31 @@ textarea {
   background: var(--header-bg);
 }
 
+/* --- Emoji picker library overrides --- */
+.emoji-picker .epr-skin-tones,
+.emoji-picker .epr-category-nav {
+  display: none !important;
+}
+
+.emoji-picker .epr-header {
+  padding-bottom: 0 !important;
+}
+
+.emoji-picker .epr-search-container input {
+  border-radius: 20px !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.1) !important;
+  font-family: var(--font) !important;
+  font-size: 13px !important;
+}
+
+.emoji-picker .epr-search-container input:focus {
+  border-color: var(--header-bg) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--accent-glow) !important;
+}
 
 /* ==========================================================================
-   SIDEBAR — Users in Room
+    SIDEBAR — Users in Room
    ========================================================================== */
 .chat-sidebar {
   flex: 0 0 230px;

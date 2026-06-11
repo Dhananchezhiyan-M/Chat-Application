@@ -25,8 +25,8 @@ function PrivateChatPage({ username, logout, goBack }) {
 
     const [showEmoji, setShowEmoji] = useState(false);
 
-    const sendAudio = new Audio(sendSound);
-    const receiveAudio = new Audio(receiveSound);
+    const sendAudioRef = useRef(new Audio(sendSound));
+    const receiveAudioRef = useRef(new Audio(receiveSound));
 
     const [roomCreatedAt, setRoomCreatedAt] = useState(null);
     const [expiryTime, setExpiryTime] = useState("");
@@ -42,7 +42,10 @@ function PrivateChatPage({ username, logout, goBack }) {
         socketRef.current.on("new private message", (msg) => {
             setMessages((prev) => [...prev, msg]);
             if (msg.sender !== username) {
-                receiveAudio.play();
+                receiveAudioRef.current.currentTime = 0;
+
+                receiveAudioRef.current.play()
+                    .catch(err => console.log(err));
             }
         });
 
@@ -81,6 +84,7 @@ function PrivateChatPage({ username, logout, goBack }) {
                     roomIdRef.current
                 );
             }
+            socketRef.current.disconnect();
         };
     }, []);
 
@@ -198,7 +202,10 @@ function PrivateChatPage({ username, logout, goBack }) {
             senderId: socketRef.current.id,
             roomId
         });
-        sendAudio.play();
+        sendAudioRef.current.currentTime = 0;
+
+        sendAudioRef.current.play()
+            .catch(err => console.log(err));
         setMessage("");
     };
 
@@ -374,11 +381,9 @@ function PrivateChatPage({ username, logout, goBack }) {
                                         </button>
     
                                         <EmojiPicker
+                                            skinTonesDisabled
                                             onEmojiClick={(emojiData) => {
-    
-                                                setMessage(
-                                                    prev => prev + emojiData.emoji
-                                                );
+                                                setMessage(prev => prev + emojiData.emoji);
                                             }}
                                         />
     

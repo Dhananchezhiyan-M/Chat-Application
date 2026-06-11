@@ -19,8 +19,8 @@ function ChatPage({ username, logout , goBack}) {
 
     const [showEmoji, setShowEmoji] = useState(false);
 
-    const sendAudio = new Audio(sendSound);
-    const receiveAudio = new Audio(receiveSound);
+    const sendAudioRef = useRef(new Audio(sendSound));
+    const receiveAudioRef = useRef(new Audio(receiveSound));
 
     useEffect(() => {
         socketRef.current = io("http://localhost:3000");
@@ -47,7 +47,10 @@ function ChatPage({ username, logout , goBack}) {
         socketRef.current.on("new message", (msg) => {
             setMessages((prev) => [...prev, msg]);
             if (msg.sender !== username) {
-                receiveAudio.play();
+                receiveAudioRef.current.currentTime = 0;
+
+                receiveAudioRef.current.play()
+                    .catch(err => console.log(err));
             }
         });
 
@@ -79,7 +82,7 @@ function ChatPage({ username, logout , goBack}) {
                 "leave room",
                 "general"
             );
-
+            socketRef.current.disconnect();
         };
     }, [username]);
 
@@ -91,7 +94,7 @@ function ChatPage({ username, logout , goBack}) {
 
     }, [messages]);
 
-    let typingTimeout;
+    const typingTimeoutRef = useRef(null);
 
     const sendMessage = () => {
         if (!message.trim()) return;
@@ -102,7 +105,10 @@ function ChatPage({ username, logout , goBack}) {
             senderId: username,
             chatName: "general"
         });
-        sendAudio.play();
+        sendAudioRef.current.currentTime = 0;
+
+        sendAudioRef.current.play()
+            .catch(err => console.log(err));
         setMessage("");
     };
 
@@ -115,9 +121,9 @@ function ChatPage({ username, logout , goBack}) {
             room: "general"
         });
 
-        clearTimeout(typingTimeout);
+        clearTimeout(typingTimeoutRef.current);
 
-        typingTimeout = setTimeout(() => {
+        typingTimeoutRef.current = setTimeout(() => {
 
             socketRef.current.emit("stop typing", {
                 username,
@@ -240,11 +246,9 @@ function ChatPage({ username, logout , goBack}) {
                                     </button>
 
                                     <EmojiPicker
+                                        skinTonesDisabled
                                         onEmojiClick={(emojiData) => {
-
-                                            setMessage(
-                                                prev => prev + emojiData.emoji
-                                            );
+                                            setMessage(prev => prev + emojiData.emoji);
                                         }}
                                     />
 

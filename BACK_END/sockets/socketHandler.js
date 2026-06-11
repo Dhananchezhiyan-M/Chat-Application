@@ -275,7 +275,7 @@ const socketHandler = (io) => {
 
                 for (const roomId of rooms) {
 
-                    if (roomId !== socket.id) continue;//if the room ID matches with the socket id.
+                    if (roomId === socket.id) continue;//if the room ID matches with the socket id.
 
                         const roomSockets =
                             await io.in(roomId)
