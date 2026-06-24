@@ -31,6 +31,24 @@ function PrivateChatPage({ username, logout, goBack }) {
     const [roomCreatedAt, setRoomCreatedAt] = useState(null);
     const [expiryTime, setExpiryTime] = useState("");
 
+    const deleteRoom = () => {
+
+    const confirmed =
+            window.confirm(
+                "Are you sure you want to delete this room?"
+            );
+
+        if (!confirmed) return;
+
+        socketRef.current.emit(
+            "delete room",
+            {
+                roomId,
+                username
+            }
+        );
+    };
+
     useEffect(() => {
         socketRef.current = io("http://localhost:3000");
 
@@ -74,6 +92,23 @@ function PrivateChatPage({ username, logout, goBack }) {
                 prev.filter((u) => u !== username)
             );
         });
+
+        socketRef.current.on(
+            "room deleted",
+            () => {
+
+                alert(
+                    "Room deleted by creator"
+                );
+
+                setJoined(false);
+                setMessages([]);
+                setUsers([]);
+                setRoomId("");
+                setMode("");
+
+            }
+        );
 
         return () => {
 
@@ -190,7 +225,7 @@ function PrivateChatPage({ username, logout, goBack }) {
         });
     };
 
-    let typingTimeout;
+    let typingTimeoutRef;
 
     // 🔥 SEND MESSAGE
     const sendMessage = () => {
@@ -218,9 +253,9 @@ function PrivateChatPage({ username, logout, goBack }) {
             room: roomId
         });
 
-        clearTimeout(typingTimeout);
+        clearTimeout(typingTimeoutRef);
 
-        typingTimeout = setTimeout(() => {
+        typingTimeoutRef = setTimeout(() => {
 
             socketRef.current.emit("stop typing", {
                 username,
@@ -262,6 +297,11 @@ function PrivateChatPage({ username, logout, goBack }) {
                             <div className="expiry-timer">
                                 Expires in: {expiryTime}
                             </div>
+                        )}
+                        {joined && (
+                            <button onClick={deleteRoom}>
+                                Delete Room
+                            </button>
                         )}
                     </div>
                 </div>

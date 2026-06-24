@@ -13,5 +13,6 @@ socket.on("typing")
 
 
 -------------------------
-Delete message.
-Dark Mode.
+Delete Room by the creator.
+Just deploy it.
+-------------------------

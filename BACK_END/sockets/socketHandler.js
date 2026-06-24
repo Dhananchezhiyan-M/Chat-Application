@@ -262,6 +262,46 @@ const socketHandler = (io) => {
             }
         });
 
+        //Delete Room.
+        socket.on(
+            "delete room",
+            async ({ roomId, username }) => {
+
+                try {
+
+                    const room =
+                        await Room.findOne({ roomId });
+
+                    if (!room) return;
+
+                    // Only creator can delete
+                    if (
+                        room.createdBy !== username
+                    ) {
+                        return;
+                    }
+
+                    await Message.deleteMany({
+                        room: roomId
+                    });
+
+                    await Room.deleteOne({
+                        roomId
+                    });
+
+                    io.to(roomId).emit(
+                        "room deleted"
+                    );
+
+                } catch (err) {
+                    console.error(
+                        "Delete room error:",
+                        err
+                    );
+                }
+            }
+        );
+
         // 🔥 DISCONNECT
         socket.on("disconnecting", async () => {
             try {
