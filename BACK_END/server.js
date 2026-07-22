@@ -42,3 +42,9 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server listening on http://localhost:${PORT}`);
 });
+
+// Backend API routes.
+// POST /api/auth/login
+// POST /api/auth/register
+// GET  /api/messages
+// POST /api/messages

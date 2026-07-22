@@ -10,7 +10,7 @@ const socketHandler = (io) => {
         // 🔥 JOIN SERVER
         socket.on("join server", async (username) => {
             try {
-                const user = { username, id: socket.id };
+                const user = { username, id: socket.id };//also used in the typing part.
 
                 // ✅ prevent duplicate users
                 const existingUser = users.find(u => u.id === socket.id);
@@ -60,7 +60,7 @@ const socketHandler = (io) => {
         });
 
         // 🔥 SEND MESSAGE
-        socket.on("send message", async ({ content, sender, senderId, chatName }) => {
+        socket.on("send message", async ({ content, sender, senderId, chatName }) => {//on(listens that frontend sends.)
             try {
                 const newMessage = new Message({
                     sender,

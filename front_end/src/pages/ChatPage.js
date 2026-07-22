@@ -7,7 +7,7 @@ import EmojiPicker from "emoji-picker-react";
 import sendSound from "../audio/send-1.mp3";
 import receiveSound from "../audio/receive-1.mp3";
 
-function ChatPage({ username, logout , goBack}) {
+function ChatPage({ username, logout, goBack}) {
     const [mySocketId, setMySocketId] = useState("");
 
     const [message, setMessage] = useState("");
@@ -23,16 +23,16 @@ function ChatPage({ username, logout , goBack}) {
     const receiveAudioRef = useRef(new Audio(receiveSound));
 
     useEffect(() => {
-        socketRef.current = io("http://localhost:3000");
+        socketRef.current = io("http://localhost:3000");//FrontEnd initiates the TCP connection with the backend server.
 
         socketRef.current.on("connect", () => {
             setMySocketId(socketRef.current.id);
         });
 
-        socketRef.current.emit("join server", username);
+        socketRef.current.emit("join server", username);//sending the username
         socketRef.current.emit("join room", "general", (msgs) => {
             setMessages(msgs);
-        });
+        });//sending the room details.
 
         socketRef.current.emit(
             "get room users",
@@ -42,11 +42,11 @@ function ChatPage({ username, logout , goBack}) {
         socketRef.current.on(
             "room users",
             setUsers
-        );
+        );//Receiving from the frontend.
 
         socketRef.current.on("new message", (msg) => {
             setMessages((prev) => [...prev, msg]);
-            if (msg.sender !== username) {
+            if (msg.sender !== username) {//if username and sender name matches no receive sound.
                 receiveAudioRef.current.currentTime = 0;
 
                 receiveAudioRef.current.play()
@@ -65,7 +65,7 @@ function ChatPage({ username, logout , goBack}) {
 
                 return [...prev, username];
             });
-        });
+        });//prev stores the previous state of typingUsers. Receiving the name from the backend.
 
 
         // 🔥 STOP TYPING
@@ -74,7 +74,7 @@ function ChatPage({ username, logout , goBack}) {
             setTypingUsers((prev) =>
                 prev.filter((u) => u !== username)
             );
-        });
+        });//Updates the typing userList, if any one stops typing, remove the user name.
 
         return () => {
 
@@ -82,9 +82,9 @@ function ChatPage({ username, logout , goBack}) {
                 "leave room",
                 "general"
             );
-            socketRef.current.disconnect();
+            socketRef.current.disconnect();//disconnect when closed.
         };
-    }, [username]);
+    }, [username]);//backend removes the users array.
 
     useEffect(() => {
 
@@ -92,10 +92,11 @@ function ChatPage({ username, logout , goBack}) {
             behavior: "smooth"
         });
 
-    }, [messages]);
+    }, [messages]);//Everytime message changes, scroll to the viewable page(bottom).
 
     const typingTimeoutRef = useRef(null);
 
+    //Sending sound.
     const sendMessage = () => {
         if (!message.trim()) return;
 
@@ -116,14 +117,14 @@ function ChatPage({ username, logout , goBack}) {
 
         setMessage(e.target.value);
 
-        socketRef.current.emit("typing", {
+        socketRef.current.emit("typing", {//sending to the backend.
             username,
             room: "general"
         });
 
         clearTimeout(typingTimeoutRef.current);
 
-        typingTimeoutRef.current = setTimeout(() => {
+        typingTimeoutRef.current = setTimeout(() => {//sending stop typing if for 1 second didn't typed.
 
             socketRef.current.emit("stop typing", {
                 username,
@@ -133,7 +134,7 @@ function ChatPage({ username, logout , goBack}) {
         }, 1000);
     };
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e) => {//enter to send the data.
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
@@ -144,7 +145,7 @@ function ChatPage({ username, logout , goBack}) {
         if (a.id === mySocketId) return -1;
         if (b.id === mySocketId) return 1;
         return 0;
-    });
+    });//pinning the own user in the top of the page.
 
     return (
         <div className="chat-container">
