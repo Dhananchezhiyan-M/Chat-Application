@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import axios from "axios";
 import "../pages.css";
+import { API_URL } from "../config";
 
 function LoginPage({goToChat, goToHome, setLoggedInUser}) {
     const [username, setUsername] = useState("");
@@ -9,7 +10,7 @@ function LoginPage({goToChat, goToHome, setLoggedInUser}) {
 
     const handleLogin = async() => {
         try {
-            const response = await axios.post("http://localhost:3000/api/auth/login", 
+            const response = await axios.post(`${API_URL}/api/auth/login`, 
                 {
                     username,
                     password

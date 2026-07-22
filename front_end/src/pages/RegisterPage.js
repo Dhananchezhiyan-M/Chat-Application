@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../pages.css";
+import { API_URL } from "../config";
 
 function RegisterPage({ goToLogin, goToHome }) {
     const [username, setUsername] = useState("");
@@ -20,8 +21,7 @@ function RegisterPage({ goToLogin, goToHome }) {
     }
 
     try {
-        const response = await axios.post(
-        "http://localhost:3000/api/auth/register",
+        const response = await axios.post(`${API_URL}/api/auth/register`,
         {
           //here response is the message received from backend
           //axios is for sending from frontend to the backend.

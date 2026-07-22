@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import "./assets/chat.css";
 import EmojiPicker from "emoji-picker-react";
+import { API_URL } from "../config";
 
 import sendSound from "../audio/send-1.mp3";
 import receiveSound from "../audio/receive-1.mp3";
@@ -76,7 +77,7 @@ function PrivateChatPage({ username, logout, goBack }) {
     };
 
     useEffect(() => {
-        socketRef.current = io("http://localhost:3000");
+        socketRef.current = io(API_URL);
 
         socketRef.current.on("connect", () => {
             setMySocketId(socketRef.current.id);
