@@ -108,7 +108,8 @@ const socketHandler = (io) => {
 
                 cb({
                     roomId,
-                    createdAt: newRoom.createdAt
+                    createdAt: newRoom.createdAt,
+                    createdBy: newRoom.createdBy
                 });
 
             } catch (err) {
@@ -155,7 +156,8 @@ const socketHandler = (io) => {
 
                 cb({
                     messages: oldMessages,
-                    createdAt: room.createdAt
+                    createdAt: room.createdAt,
+                    createdBy: room.createdBy
                 });
 
             } catch (err) {

@@ -25,28 +25,54 @@ function PrivateChatPage({ username, logout, goBack }) {
 
     const [showEmoji, setShowEmoji] = useState(false);
 
-    const sendAudioRef = useRef(new Audio(sendSound));
-    const receiveAudioRef = useRef(new Audio(receiveSound));
+    const playSendSound = () => {
+        try {
+            const audio = new Audio(sendSound);
+            audio.play().catch(err => console.log("Send audio play error:", err));
+        } catch (err) {
+            console.log("Audio playback error:", err);
+        }
+    };
+
+    const playReceiveSound = () => {
+        try {
+            const audio = new Audio(receiveSound);
+            audio.play().catch(err => console.log("Receive audio play error:", err));
+        } catch (err) {
+            console.log("Audio playback error:", err);
+        }
+    };
 
     const [roomCreatedAt, setRoomCreatedAt] = useState(null);
     const [expiryTime, setExpiryTime] = useState("");
+    const [roomCreatedBy, setRoomCreatedBy] = useState("");
+    const [deletedNotice, setDeletedNotice] = useState(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [alertMessage, setAlertMessage] = useState(null);
 
-    const deleteRoom = () => {
+    const showAlert = (msg) => {
+        setAlertMessage(msg);
+    };
 
-    const confirmed =
-            window.confirm(
-                "Are you sure you want to delete this room?"
-            );
+    const goBackRef = useRef(goBack);
+    useEffect(() => {
+        goBackRef.current = goBack;
+    }, [goBack]);
 
-        if (!confirmed) return;
+    const handleDeleteClick = () => {
+        setShowConfirmModal(true);
+    };
 
-        socketRef.current.emit(
-            "delete room",
-            {
-                roomId,
-                username
-            }
-        );
+    const handleConfirmDelete = () => {
+        setShowConfirmModal(false);
+        socketRef.current.emit("delete room", {
+            roomId,
+            username
+        });
+    };
+
+    const handleCancelDelete = () => {
+        setShowConfirmModal(false);
     };
 
     useEffect(() => {
@@ -54,16 +80,13 @@ function PrivateChatPage({ username, logout, goBack }) {
 
         socketRef.current.on("connect", () => {
             setMySocketId(socketRef.current.id);
-            socketRef.current.emit("join server",username);
+            socketRef.current.emit("join server", username);
         });
 
         socketRef.current.on("new private message", (msg) => {
             setMessages((prev) => [...prev, msg]);
             if (msg.sender !== username) {
-                receiveAudioRef.current.currentTime = 0;
-
-                receiveAudioRef.current.play()
-                    .catch(err => console.log(err));
+                playReceiveSound();
             }
         });
 
@@ -93,22 +116,29 @@ function PrivateChatPage({ username, logout, goBack }) {
             );
         });
 
-        socketRef.current.on(
-            "room deleted",
-            () => {
+        socketRef.current.on("room deleted", () => {
+            let secondsLeft = 3;
+            setDeletedNotice(`Room has been deleted by creator. Returning to selection page in ${secondsLeft}s...`);
 
-                alert(
-                    "Room deleted by creator"
-                );
-
-                setJoined(false);
-                setMessages([]);
-                setUsers([]);
-                setRoomId("");
-                setMode("");
-
-            }
-        );
+            const timer = setInterval(() => {
+                secondsLeft -= 1;
+                if (secondsLeft > 0) {
+                    setDeletedNotice(`Room has been deleted by creator. Returning to selection page in ${secondsLeft}s...`);
+                } else {
+                    clearInterval(timer);
+                    setJoined(false);
+                    setMessages([]);
+                    setUsers([]);
+                    setRoomId("");
+                    setRoomCreatedBy("");
+                    setMode("");
+                    setDeletedNotice(null);
+                    if (goBackRef.current) {
+                        goBackRef.current();
+                    }
+                }
+            }, 1000);
+        });
 
         return () => {
 
@@ -121,18 +151,18 @@ function PrivateChatPage({ username, logout, goBack }) {
             }
             socketRef.current.disconnect();
         };
-    }, []);
+    }, [username]);
 
     useEffect(() => {
         roomIdRef.current = roomId;
     }, [roomId]);
 
     useEffect(() => {
-    
-            messagesEndRef.current?.scrollIntoView({
-                behavior: "smooth"
-            });
-    
+
+        messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth"
+        });
+
     }, [messages]);
 
     useEffect(() => {
@@ -193,6 +223,7 @@ function PrivateChatPage({ username, logout, goBack }) {
 
                 setRoomId(res.roomId);
                 setRoomCreatedAt(res.createdAt);
+                setRoomCreatedBy(res.createdBy || username);
 
                 socketRef.current.emit(
                     "join room",
@@ -207,14 +238,15 @@ function PrivateChatPage({ username, logout, goBack }) {
 
     // 🔥 JOIN ROOM
     const joinRoom = () => {
-        if (!roomId.trim()) return alert("Enter room code");
+        if (!roomId.trim()) return showAlert("Please enter a room code");
 
         socketRef.current.emit("join private room", roomId, (res) => {
             if (res.error) {
-                alert(res.error);
+                showAlert(res.error);
             } else {
                 setMessages(res.messages || []);
                 setRoomCreatedAt(res.createdAt);
+                setRoomCreatedBy(res.createdBy || "");
                 setJoined(true);
                 socketRef.current.emit(
                     "join room",
@@ -237,10 +269,7 @@ function PrivateChatPage({ username, logout, goBack }) {
             senderId: socketRef.current.id,
             roomId
         });
-        sendAudioRef.current.currentTime = 0;
-
-        sendAudioRef.current.play()
-            .catch(err => console.log(err));
+        playSendSound();
         setMessage("");
     };
 
@@ -278,8 +307,54 @@ function PrivateChatPage({ username, logout, goBack }) {
         return 0;
     });
 
+    const isCreator = roomCreatedBy === username;
+
     return (
         <div className="chat-container">
+
+            {/* CUSTOM ALERT MODAL */}
+            {alertMessage && (
+                <div className="alert-modal-overlay">
+                    <div className="alert-modal-card">
+                        <div className="alert-modal-icon">⚠️</div>
+                        <h3>Notice</h3>
+                        <p>{alertMessage}</p>
+                        <button className="alert-modal-btn" onClick={() => setAlertMessage(null)}>
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* CUSTOM DELETE CONFIRMATION MODAL */}
+            {showConfirmModal && (
+                <div className="confirm-modal-overlay">
+                    <div className="confirm-modal-card">
+                        <div className="confirm-modal-icon">⚠️</div>
+                        <h3>Delete Room?</h3>
+                        <p>Are you sure you want to delete this room? All messages will be permanently removed for everyone.</p>
+                        <div className="confirm-modal-actions">
+                            <button className="cancel-btn" onClick={handleCancelDelete}>
+                                Cancel
+                            </button>
+                            <button className="confirm-delete-btn" onClick={handleConfirmDelete}>
+                                Yes, Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ROOM DELETED OVERLAY */}
+            {deletedNotice && (
+                <div className="room-deleted-overlay">
+                    <div className="room-deleted-card">
+                        <div className="room-deleted-icon">🗑️</div>
+                        <h3>Room Deleted</h3>
+                        <p>{deletedNotice}</p>
+                    </div>
+                </div>
+            )}
 
             {/* HEADER */}
             <div className="chat-header">
@@ -298,9 +373,9 @@ function PrivateChatPage({ username, logout, goBack }) {
                                 Expires in: {expiryTime}
                             </div>
                         )}
-                        {joined && (
-                            <button onClick={deleteRoom}>
-                                Delete Room
+                        {joined && isCreator && (
+                            <button className="delete-room-btn" onClick={handleDeleteClick}>
+                                🗑️ Delete Room
                             </button>
                         )}
                     </div>

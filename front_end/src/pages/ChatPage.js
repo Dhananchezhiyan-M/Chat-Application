@@ -19,8 +19,23 @@ function ChatPage({ username, logout, goBack}) {
 
     const [showEmoji, setShowEmoji] = useState(false);
 
-    const sendAudioRef = useRef(new Audio(sendSound));
-    const receiveAudioRef = useRef(new Audio(receiveSound));
+    const playSendSound = () => {
+        try {
+            const audio = new Audio(sendSound);
+            audio.play().catch(err => console.log("Send audio play error:", err));
+        } catch (err) {
+            console.log("Audio playback error:", err);
+        }
+    };
+
+    const playReceiveSound = () => {
+        try {
+            const audio = new Audio(receiveSound);
+            audio.play().catch(err => console.log("Receive audio play error:", err));
+        } catch (err) {
+            console.log("Audio playback error:", err);
+        }
+    };
 
     useEffect(() => {
         socketRef.current = io("http://localhost:3000");//FrontEnd initiates the TCP connection with the backend server.
@@ -47,10 +62,7 @@ function ChatPage({ username, logout, goBack}) {
         socketRef.current.on("new message", (msg) => {
             setMessages((prev) => [...prev, msg]);
             if (msg.sender !== username) {//if username and sender name matches no receive sound.
-                receiveAudioRef.current.currentTime = 0;
-
-                receiveAudioRef.current.play()
-                    .catch(err => console.log(err));
+                playReceiveSound();
             }
         });
 
@@ -106,10 +118,7 @@ function ChatPage({ username, logout, goBack}) {
             senderId: username,
             chatName: "general"
         });
-        sendAudioRef.current.currentTime = 0;
-
-        sendAudioRef.current.play()
-            .catch(err => console.log(err));
+        playSendSound();
         setMessage("");
     };
 
