@@ -13,8 +13,8 @@ socket.on("typing")
 
 
 -------------------------
-Delete Room by the creator.
-Just deploy it.
+11. Delete Room by the creator.
+12. Just deploy it.
 -------------------------
 
 Done.
