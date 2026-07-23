@@ -20,7 +20,28 @@ function ChatPage({ username, logout, goBack}) {
 
     const [showEmoji, setShowEmoji] = useState(false);
 
+    // Sound system & Three dots menu states
+    const [soundEnabled, setSoundEnabled] = useState(true);
+    const soundEnabledRef = useRef(true);
+    useEffect(() => {
+        soundEnabledRef.current = soundEnabled;
+    }, [soundEnabled]);
+
+    const [showMenu, setShowMenu] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setShowMenu(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     const playSendSound = () => {
+        if (!soundEnabledRef.current) return;
         try {
             const audio = new Audio(sendSound);
             audio.play().catch(err => console.log("Send audio play error:", err));
@@ -30,6 +51,7 @@ function ChatPage({ username, logout, goBack}) {
     };
 
     const playReceiveSound = () => {
+        if (!soundEnabledRef.current) return;
         try {
             const audio = new Audio(receiveSound);
             audio.play().catch(err => console.log("Receive audio play error:", err));
@@ -167,11 +189,51 @@ function ChatPage({ username, logout, goBack}) {
                     <div>
                         <h2>Public Chat</h2>
                     </div>
-                    <div className="expiry-info">
-                        Messages auto-delete after 5 days
-                    </div>
                 </div>
-                <button onClick={logout}>Logout</button>
+
+                {/* THREE DOTS MENU */}
+                <div className="menu-container" ref={menuRef}>
+                    <button 
+                        className="three-dots-btn" 
+                        onClick={() => setShowMenu(!showMenu)}
+                        title="Menu"
+                    >
+                        ⋮
+                    </button>
+
+                    {showMenu && (
+                        <div className="dropdown-menu">
+                            <div className="menu-item info-item">
+                                <span className="menu-icon">ℹ️</span>
+                                <span className="menu-text">Messages auto-delete after 5 days</span>
+                            </div>
+
+                            <div 
+                                className="menu-item" 
+                                onClick={() => setSoundEnabled(!soundEnabled)}
+                            >
+                                <span className="menu-icon">{soundEnabled ? "🔊" : "🔇"}</span>
+                                <span className="menu-text">
+                                    {soundEnabled ? "Turn off notification sound" : "Turn on notification sound"}
+                                </span>
+                                <span className={`sound-status-pill ${soundEnabled ? "on" : "off"}`}>
+                                    {soundEnabled ? "ON" : "OFF"}
+                                </span>
+                            </div>
+
+                            <div 
+                                className="menu-item logout-item" 
+                                onClick={() => {
+                                    setShowMenu(false);
+                                    logout();
+                                }}
+                            >
+                                <span className="menu-icon">🚪</span>
+                                <span className="menu-text">Logout</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* MAIN */}

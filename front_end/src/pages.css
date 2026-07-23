@@ -11,47 +11,41 @@
 /* --------------------------------------------------------------------------
    FONT — same as chat.css (no-op if already loaded)
    -------------------------------------------------------------------------- */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
-
-
-/* --------------------------------------------------------------------------
-   PAGE TOKENS — mirrors chat.css :root so both files are consistent
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');/* --------------------------------------------------------------------------
+   PAGE TOKENS — Modern Dark / Obsidian Theme
    -------------------------------------------------------------------------- */
 :root {
   --p-font:          'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Brand */
-  --p-teal-deep:     #075e54;
-  --p-teal-dark:     #064e46;
-  --p-teal-mid:      #0a3028;
-  --p-green:         #25d366;
-  --p-green-mid:     #00a884;
-  --p-green-glow:    rgba(37, 211, 102, 0.22);
-  --p-green-subtle:  rgba(37, 211, 102, 0.10);
+  --p-accent:        #6366f1;
+  --p-accent-dark:   #4f46e5;
+  --p-accent-glow:   rgba(99, 102, 241, 0.28);
+  --p-accent-subtle: rgba(99, 102, 241, 0.12);
 
   /* Card glass */
-  --p-glass-bg:      rgba(255, 255, 255, 0.075);
-  --p-glass-border:  rgba(255, 255, 255, 0.115);
-  --p-glass-shadow:  0 28px 72px rgba(0, 0, 0, 0.44),
-                     0 1px 0   rgba(255, 255, 255, 0.09) inset,
-                     0 -1px 0  rgba(0, 0, 0, 0.18) inset;
+  --p-glass-bg:      rgba(18, 22, 31, 0.78);
+  --p-glass-border:  rgba(255, 255, 255, 0.10);
+  --p-glass-shadow:  0 30px 80px rgba(0, 0, 0, 0.65),
+                     0 1px 0   rgba(255, 255, 255, 0.12) inset,
+                     0 -1px 0  rgba(0, 0, 0, 0.3) inset;
 
   /* Text on dark */
   --p-text-white:    #ffffff;
-  --p-text-dim:      rgba(255, 255, 255, 0.5);
-  --p-text-dimmer:   rgba(255, 255, 255, 0.32);
+  --p-text-dim:      rgba(255, 255, 255, 0.60);
+  --p-text-dimmer:   rgba(255, 255, 255, 0.35);
 
   /* Inputs */
-  --p-input-bg:      rgba(255, 255, 255, 0.08);
+  --p-input-bg:      rgba(255, 255, 255, 0.05);
   --p-input-border:  rgba(255, 255, 255, 0.12);
 
   /* Toast */
   --p-success-text:  #4ade80;
-  --p-success-bg:    rgba(37, 211, 102, 0.11);
-  --p-success-bd:    rgba(37, 211, 102, 0.28);
-  --p-error-text:    #ff8a80;
-  --p-error-bg:      rgba(255, 82, 82, 0.10);
-  --p-error-bd:      rgba(255, 82, 82, 0.26);
+  --p-success-bg:    rgba(74, 222, 128, 0.12);
+  --p-success-bd:    rgba(74, 222, 128, 0.30);
+  --p-error-text:    #f87171;
+  --p-error-bg:      rgba(248, 113, 113, 0.12);
+  --p-error-bd:      rgba(248, 113, 113, 0.30);
 
   /* Motion */
   --p-ease:          cubic-bezier(0.4, 0, 0.2, 1);
@@ -61,7 +55,7 @@
 
 
 /* ==========================================================================
-   FULL-PAGE WRAPPERS — shared structure
+   FULL-PAGE WRAPPERS — shared obsidian black structure
    ========================================================================== */
 .bg-home,
 .bg-login,
@@ -74,9 +68,10 @@
   font-family: var(--p-font);
   position: relative;
   overflow: hidden;
+  background-color: #0a0c12;
 }
 
-/* ── Ambient light orb — top-right ───────────────────────────────────────── */
+/* ── Ambient dark glowing orbs ─────────────────────────────────────────── */
 .bg-home::before,
 .bg-login::before,
 .bg-register::before {
@@ -87,45 +82,45 @@
   z-index: 0;
   background:
     radial-gradient(
-      ellipse 55% 45% at 90% 10%,
-      rgba(37, 211, 102, 0.09) 0%,
+      ellipse 60% 50% at 85% 15%,
+      rgba(99, 102, 241, 0.12) 0%,
       transparent 70%
     ),
     radial-gradient(
-      ellipse 50% 50% at 10% 85%,
-      rgba(0, 168, 132, 0.07) 0%,
+      ellipse 50% 50% at 15% 85%,
+      rgba(56, 189, 248, 0.08) 0%,
       transparent 65%
     );
 }
 
-/* ── Page-specific gradient backgrounds ────────────────────────────────── */
+/* ── Page-specific sleek dark gradient backgrounds ─────────────────────── */
 .bg-home {
   background: linear-gradient(
     145deg,
-    #071a14  0%,
-    #0a3028 42%,
-    #0d5046 78%,
-    #075e54 100%
+    #07080e  0%,
+    #0f121b 42%,
+    #151926 78%,
+    #0c0e16 100%
   );
 }
 
 .bg-login {
   background: linear-gradient(
     145deg,
-    #06101c  0%,
-    #082c26 40%,
-    #0b4840 75%,
-    #0a5e54 100%
+    #080910  0%,
+    #0e111a 40%,
+    #161824 75%,
+    #0a0c14 100%
   );
 }
 
 .bg-register {
   background: linear-gradient(
     145deg,
-    #051018  0%,
-    #062c28 42%,
-    #084038 76%,
-    #064e46 100%
+    #07080d  0%,
+    #0d0f18 42%,
+    #131622 76%,
+    #090b12 100%
   );
 }
 
@@ -168,10 +163,10 @@
   align-self: center;
   margin-bottom: 4px;
 
-  background: linear-gradient(135deg, var(--p-teal-deep), var(--p-green-mid));
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   box-shadow:
-    0 8px 22px rgba(7, 94, 84, 0.5),
-    0 1px 0 rgba(255, 255, 255, 0.12) inset;
+    0 8px 24px rgba(99, 102, 241, 0.42),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset;
 }
 
 
@@ -233,9 +228,9 @@
 }
 
 .card input:focus {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(37, 211, 102, 0.52);
-  box-shadow: 0 0 0 3px var(--p-green-glow);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(99, 102, 241, 0.65);
+  box-shadow: 0 0 0 3px var(--p-accent-glow);
 }
 
 
@@ -266,20 +261,20 @@
 
 /* ── Primary (first button in group) ───────────────────────────────────── */
 .btn-group button:first-child {
-  background: linear-gradient(135deg, var(--p-green) 0%, var(--p-green-mid) 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: #fff;
   border: none;
-  box-shadow: 0 4px 18px rgba(37, 211, 102, 0.38);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.38);
 }
 
 .btn-group button:first-child:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 26px rgba(37, 211, 102, 0.5);
+  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.52);
 }
 
 .btn-group button:first-child:active {
   transform: translateY(0) scale(0.98);
-  box-shadow: 0 2px 10px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
 }
 
 /* ── Ghost (second button in group) ───────────────────────────────────── */

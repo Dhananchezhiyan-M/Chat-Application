@@ -26,7 +26,37 @@ function PrivateChatPage({ username, logout, goBack }) {
 
     const [showEmoji, setShowEmoji] = useState(false);
 
+    // Sound system & Three dots menu states
+    const [soundEnabled, setSoundEnabled] = useState(true);
+    const soundEnabledRef = useRef(true);
+    useEffect(() => {
+        soundEnabledRef.current = soundEnabled;
+    }, [soundEnabled]);
+
+    const [showMenu, setShowMenu] = useState(false);
+    const menuRef = useRef(null);
+    const [copiedNotice, setCopiedNotice] = useState(false);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setShowMenu(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleCopyRoomCode = () => {
+        if (roomId) {
+            navigator.clipboard.writeText(roomId);
+            setCopiedNotice(true);
+            setTimeout(() => setCopiedNotice(false), 2000);
+        }
+    };
+
     const playSendSound = () => {
+        if (!soundEnabledRef.current) return;
         try {
             const audio = new Audio(sendSound);
             audio.play().catch(err => console.log("Send audio play error:", err));
@@ -36,6 +66,7 @@ function PrivateChatPage({ username, logout, goBack }) {
     };
 
     const playReceiveSound = () => {
+        if (!soundEnabledRef.current) return;
         try {
             const audio = new Audio(receiveSound);
             audio.play().catch(err => console.log("Receive audio play error:", err));
@@ -363,25 +394,81 @@ function PrivateChatPage({ username, logout, goBack }) {
                     <button onClick={goBack}>Back</button>
                     <div className="room-header">
                         <h2>Private Chat</h2>
-
-                        {joined && (
-                            <span className="room-code">
-                                Room Code: {roomId}
-                            </span>
-                        )}
-                        {joined && (
-                            <div className="expiry-timer">
-                                Expires in: {expiryTime}
-                            </div>
-                        )}
-                        {joined && isCreator && (
-                            <button className="delete-room-btn" onClick={handleDeleteClick}>
-                                🗑️ Delete Room
-                            </button>
-                        )}
                     </div>
                 </div>
-                <button onClick={logout}>Logout</button>
+
+                {/* THREE DOTS MENU */}
+                <div className="menu-container" ref={menuRef}>
+                    <button 
+                        className="three-dots-btn" 
+                        onClick={() => setShowMenu(!showMenu)}
+                        title="Menu"
+                    >
+                        ⋮
+                    </button>
+
+                    {showMenu && (
+                        <div className="dropdown-menu">
+                            {joined && (
+                                <div className="menu-item room-code-item" onClick={handleCopyRoomCode}>
+                                    <span className="menu-icon">🔑</span>
+                                    <div className="menu-text-group">
+                                        <span className="menu-label">Room Code</span>
+                                        <span className="menu-value">{roomId}</span>
+                                    </div>
+                                    <span className="copy-badge">{copiedNotice ? "Copied! ✓" : "Copy"}</span>
+                                </div>
+                            )}
+
+                            {joined && (
+                                <div className="menu-item timer-item">
+                                    <span className="menu-icon">⏳</span>
+                                    <div className="menu-text-group">
+                                        <span className="menu-label">Expires in</span>
+                                        <span className="menu-value expiry-text">{expiryTime || "Calculating..."}</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div 
+                                className="menu-item" 
+                                onClick={() => setSoundEnabled(!soundEnabled)}
+                            >
+                                <span className="menu-icon">{soundEnabled ? "🔊" : "🔇"}</span>
+                                <span className="menu-text">
+                                    {soundEnabled ? "Turn off notification sound" : "Turn on notification sound"}
+                                </span>
+                                <span className={`sound-status-pill ${soundEnabled ? "on" : "off"}`}>
+                                    {soundEnabled ? "ON" : "OFF"}
+                                </span>
+                            </div>
+
+                            {joined && isCreator && (
+                                <div 
+                                    className="menu-item delete-item" 
+                                    onClick={() => {
+                                        setShowMenu(false);
+                                        handleDeleteClick();
+                                    }}
+                                >
+                                    <span className="menu-icon">🗑️</span>
+                                    <span className="menu-text">Delete Room</span>
+                                </div>
+                            )}
+
+                            <div 
+                                className="menu-item logout-item" 
+                                onClick={() => {
+                                    setShowMenu(false);
+                                    logout();
+                                }}
+                            >
+                                <span className="menu-icon">🚪</span>
+                                <span className="menu-text">Logout</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* NOT JOINED */}
