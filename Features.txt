@@ -1,6 +1,4 @@
-1. Typing Indicator: Ram is typing like that.
-socket.emit("typing")
-socket.on("typing")
+1. Typing Indicator: Ram is typing.. like that.
 2. Delivery status: sent, delivered, seen
 3. Message Timing: new Date(msg.timestamp).toLocaleTimeString()
 4. Deleting message
@@ -10,11 +8,5 @@ socket.on("typing")
 8. Dark Mode
 9. Notification sound.
 10. Room Expiry timing.
-
-
--------------------------
 11. Delete Room by the creator.
-12. Just deploy it.
--------------------------
-
-Done.
+--------------------------
